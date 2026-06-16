@@ -44,11 +44,13 @@ func main() {
 			Features  []string
 			X64Level  int
 			RVProfile int
+			GOARM64   string `json:"GOARM64,omitempty"`
 		}{
 			CPUInfo:   cpuid.CPU,
 			Features:  cpuid.CPU.FeatureSet(),
 			X64Level:  cpuid.CPU.X64Level(),
 			RVProfile: cpuid.CPU.RVProfile(),
+			GOARM64:   cpuid.CPU.GOARM64(),
 		}
 		b, err := json.MarshalIndent(info, "", "  ")
 		if err != nil {
@@ -66,12 +68,17 @@ func main() {
 	fmt.Println("Logical Cores:", cpuid.CPU.LogicalCores)
 	fmt.Println("CPU Family", cpuid.CPU.Family, "Model:", cpuid.CPU.Model, "Stepping:", cpuid.CPU.Stepping)
 	fmt.Println("Features:", strings.Join(cpuid.CPU.FeatureSet(), ","))
-	fmt.Println("Microarchitecture level:", cpuid.CPU.X64Level())
+	if x := cpuid.CPU.X64Level(); x > 0 {
+		fmt.Println("Microarchitecture level:", x)
+	}
 	if cpuid.CPU.AVX10Level > 0 {
 		fmt.Println("AVX10 level:", cpuid.CPU.AVX10Level)
 	}
 	if rvp := cpuid.CPU.RVProfile(); rvp > 0 {
 		fmt.Printf("RISC-V Profile: RVA%d\n", rvp)
+	}
+	if v := cpuid.CPU.GOARM64(); v != "" {
+		fmt.Println("GOARM64:", v)
 	}
 	fmt.Println("Cacheline bytes:", cpuid.CPU.CacheLine)
 	fmt.Println("L1 Instruction Cache:", cpuid.CPU.Cache.L1I, "bytes")
